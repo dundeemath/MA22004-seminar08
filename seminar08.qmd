@@ -68,7 +68,13 @@ theme_lr <- theme(legend.justification = c(1,0), legend.position = c(1,0), legen
 
 ## Special Announcement `r fa("bullhorn")` `r fa("bullhorn")` `r fa("bullhorn")`
 
-![](images/advert.jpg){width=80% fig.alt="EMS lecture advertisement."}
+EMS Invited Lecture will take place on 
+
+**Friday, 15 Nov 2024, at 15:00 in Fulton F20** 
+
+(tea served from 14:00 in common room)
+
+Speaker: Prof Anna-Karin Tornberg, KTH Stockholm
 
 ## `r fa("compass")` Outline of today
 
