@@ -1,0 +1,128 @@
+[
+  {
+    "objectID": "seminar08.html#attendance",
+    "href": "seminar08.html#attendance",
+    "title": "Seminar 08",
+    "section": "Attendance",
+    "text": "Attendance"
+  },
+  {
+    "objectID": "seminar08.html#reminders",
+    "href": "seminar08.html#reminders",
+    "title": "Seminar 08",
+    "section": "Reminders",
+    "text": "Reminders\n\nDiscuss  (specifically lm) at Thu workshop.\nDiscuss worksheet 8 at Fri workshop.\nLab 6 due Fri 2024-11-08 at 17:00."
+  },
+  {
+    "objectID": "seminar08.html#special-announcement",
+    "href": "seminar08.html#special-announcement",
+    "title": "Seminar 08",
+    "section": "Special Announcement   ",
+    "text": "Special Announcement"
+  },
+  {
+    "objectID": "seminar08.html#outline-of-today",
+    "href": "seminar08.html#outline-of-today",
+    "title": "Seminar 08",
+    "section": " Outline of today",
+    "text": "Outline of today\n\nLinear models (Conditions, Least Squares)\nlm demo"
+  },
+  {
+    "objectID": "seminar08.html#correlation",
+    "href": "seminar08.html#correlation",
+    "title": "Seminar 08",
+    "section": "Correlation",
+    "text": "Correlation\nCorrelation describes the strength of a linear relationship.\n\n\n\nCorrelation \\rho = Cov(X,Y) / \\sigma_X \\sigma_Y \\in (-1,1) models linear dependence.\nX,Y independent \\Rightarrow \\rho = 0; \\rho = 0 does not imply X,Y independent."
+  },
+  {
+    "objectID": "seminar08.html#linear-model-what-is-it",
+    "href": "seminar08.html#linear-model-what-is-it",
+    "title": "Seminar 08",
+    "section": "Linear Model (what is it?)",
+    "text": "Linear Model (what is it?)\n\nAssumes relationship between two variables X and Y can be modeled by a straight line\nModel for a perfect linear relationship: we would know the exact value of Y just by knowing the exact value of X: Y = \\beta_0 + \\beta_1 X\n(Statistical) Linear model: Y = \\beta_0 + \\beta_1 X + \\epsilon\\,,\n\nwhere \\epsilon represent the errors (residuals) in the relationship.\n\n\nX is explanatory or predictor; Y is response\nESTIMATE \\beta_0 intercept and \\beta_1 slope from DATA\nPoint estimates \\widehat{\\beta}_0 and \\widehat{\\beta}_1"
+  },
+  {
+    "objectID": "seminar08.html#palmer-penguins-gentoo",
+    "href": "seminar08.html#palmer-penguins-gentoo",
+    "title": "Seminar 08",
+    "section": "Palmer penguins (Gentoo)",
+    "text": "Palmer penguins (Gentoo)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMeasurement data (119 obs) from the Palmer Long-Term Ecological Research (LTER) station in Antarctica\nGentoo penguins that have above average flipper length tend to also have above average body mass\nCould be helpful to explain relationship with a straight line: predict body mass from flipper length"
+  },
+  {
+    "objectID": "seminar08.html#fitting-a-line-by-eye",
+    "href": "seminar08.html#fitting-a-line-by-eye",
+    "title": "Seminar 08",
+    "section": "Fitting a line by eye",
+    "text": "Fitting a line by eye\n\n\n\nslope 56, intercept -7000\n\\widehat{y} = -7200 + 56 x; say length is 215: 215*56 - 7200 = 12040 - 7200 = 4840"
+  },
+  {
+    "objectID": "seminar08.html#residuals-every-obs-has-a-friend",
+    "href": "seminar08.html#residuals-every-obs-has-a-friend",
+    "title": "Seminar 08",
+    "section": "Residuals (every obs has a friend!)",
+    "text": "Residuals (every obs has a friend!)\nData = Fit + Residual\nOne goal in regression is to pick the linear model to minimize residuals.\n\n\n\nResiduals are leftover variation in data after accounting for the model fit.\nPoints above line have positive residuals; points below line have negative residuals.\n“Best fit”; draw residuals"
+  },
+  {
+    "objectID": "seminar08.html#finding-best-fit",
+    "href": "seminar08.html#finding-best-fit",
+    "title": "Seminar 08",
+    "section": "Finding “best fit”",
+    "text": "Finding “best fit”\nWe want a line that minimizes the residuals.\n\nChoose the line that minimizes the sum of the squared residuals \\epsilon_1^2 +  \\epsilon_2^2 + \\dots \\epsilon_m^2\nCommonly referred to as least squares line\n\n\n\nResiduals are leftover variation in data after accounting for the model fit.\nPoints above line have positive residuals; points below line have negative residuals.\n“Best fit”; draw residuals"
+  },
+  {
+    "objectID": "seminar08.html#fitting-least-squares-parameters",
+    "href": "seminar08.html#fitting-least-squares-parameters",
+    "title": "Seminar 08",
+    "section": "Fitting least squares parameters",
+    "text": "Fitting least squares parameters\nLeast squares estimates for \\widehat{\\beta}_1 and \\widehat{\\beta}_0 are given by \n\\widehat{\\beta}_1 = \\frac{\\sum_{i=1}^m (X_i - \\overline{X})(Y_i - \\overline{Y})}{\\sum_{i=1}^m (X_i - \\overline{X})^2}  \n\\widehat{\\beta}_0 = \\overline{Y} - \\widehat{\\beta}_1 \\overline{X}\n\n\nxbar &lt;- mean(gentoo$flipper_length_mm)\nybar &lt;- mean(gentoo$body_mass_g)\nsxy &lt;- cov(gentoo$flipper_length_mm, gentoo$body_mass_g)\nsxx &lt;- var(gentoo$flipper_length_mm)\n\nb1 &lt;- sxy/sxx\nb0 &lt;- ybar - b1*xbar\n\n\n\nNotation: \\frac{S_{xy}}{S_{xx}}\nb1 = 54.1654, b2 = -6674.2042"
+  },
+  {
+    "objectID": "seminar08.html#least-squares-fit",
+    "href": "seminar08.html#least-squares-fit",
+    "title": "Seminar 08",
+    "section": "Least squares fit",
+    "text": "Least squares fit\n\n\n\nCompare eye-fit with intercept -7200, slope 56 to best-fit intercept -6674.2042, slope 54.1654"
+  },
+  {
+    "objectID": "seminar08.html#what-do-these-numbers-mean",
+    "href": "seminar08.html#what-do-these-numbers-mean",
+    "title": "Seminar 08",
+    "section": "What do these numbers mean?",
+    "text": "What do these numbers mean?\n\nSLOPE: For each additional 10 mm flipper length, we would expect the penguin to weigh 541.7 g more.\nINTERCEPT: -6674.20 g describes the average weight if a penguin had flipper length 0…\n\n\n\n\n\n\n\nExtrapolation can be treacherous!\n\n\nHere there are no observations near zero.\n\n\n\n\n\nThat is, 10*54.17 = 541.7 (i.e. each additional cm of flipper length adds half a kilo)\nIf the slope were negative, it would be less\nNO CAUSAL INTERPRETATION BETWEEN PREDICTOR AND RESPONSE!"
+  },
+  {
+    "objectID": "seminar08.html#but-wait-theres-more",
+    "href": "seminar08.html#but-wait-theres-more",
+    "title": "Seminar 08",
+    "section": "But wait, there’s more!",
+    "text": "But wait, there’s more!\nWe provided point estimates for the intercept and slope for the least squares line.\nThe lecture notes also contain the following goodies:\n\nInferences (pt est, CI and H-test) for the variance of the random deviation for the least squares regression [\\widehat{\\sigma}^2 = \\mathsf{RSS}/(m-2)]\nInferences (CI and H-test) for \\beta_0 and \\beta_1\n100(1-\\alpha)\\% prediction interval for model response (fit the model then give interval estimate for Y when x = x^*)\n\nThese follow the same procedures we learned earlier in the module."
+  },
+  {
+    "objectID": "seminar08.html#section",
+    "href": "seminar08.html#section",
+    "title": "Seminar 08",
+    "section": "   ",
+    "text": "Four conditions for simple linear regression model:\n\ninearity: data should show Linear trend, i.e., the mean of the response, \\mathbf{E}(Y_i), at each value of the predictor, x_i, is a Linear function of the x_i.\nndependent residuals: The residuals, \\epsilon_i, are independent.\normal residuals: The residuals, \\epsilon_i, at each value of the predictor, x_i, are (nearly) Normally distributed.\nqual varianes: variability of points around least squares line is constant, i.e., the errors, \\epsilon_i, at each value of the predictor, x_i, have Equal variances (\\sigma^2)."
+  },
+  {
+    "objectID": "seminar08.html#alternative-equivalent-descriptions-of-conditions",
+    "href": "seminar08.html#alternative-equivalent-descriptions-of-conditions",
+    "title": "Seminar 08",
+    "section": "Alternative (equivalent) descriptions of conditions…",
+    "text": "Alternative (equivalent) descriptions of conditions…\nAn equivalent way to think of the first (linearity) condition is that the mean of the error, \\mathbf{E}(\\epsilon_i), at each value of the predictor, x_i, is zero.\nAn alternative way to describe all four assumptions is that the errors, \\epsilon_i, are i.i.d. \\mathsf{N}(0, \\sigma^2)."
+  },
+  {
+    "objectID": "seminar08.html#conditions-for-linear-regression-in-pictures",
+    "href": "seminar08.html#conditions-for-linear-regression-in-pictures",
+    "title": "Seminar 08",
+    "section": "Conditions for linear regression (in pictures)",
+    "text": "Conditions for linear regression (in pictures)\nFor fitting a least squares line we focus on three requirements:\n\n\n\nPanel 1: nonlinearity - distinctive curvature\nPanel 2: non-normal residuals - notice outlier toward left\nPanel 3: lack of homoscedascticity (variance increases); should also look for patterns"
+  },
+  {
+    "objectID": "seminar08.html#your-turn",
+    "href": "seminar08.html#your-turn",
+    "title": "Seminar 08",
+    "section": "Your turn!",
+    "text": "Your turn!\n\n\n\n\n\n\nTry it!\n\n\nWhat conditions are these linear model obviously violating?\nhttps://www.menti.com code: 8965 9392"
+  }
+]

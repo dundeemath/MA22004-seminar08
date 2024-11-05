@@ -1,0 +1,337 @@
+---
+title: "Seminar 08"
+subtitle: "MA22004"
+date: "2024-11-06"
+author: "Dr Eric Hall   •   ehall001@dundee.ac.uk"
+format: 
+  revealjs:
+    chalkboard: true
+    html-math-method: katex
+    theme: [default, resources/custom.scss]
+    css: resources/fonts.css
+    logo: resources/logo.png
+    footer: ""
+    template-partials:
+      - resources/title-slide.html
+    transition: slide
+    background-transition: fade
+from: markdown+emoji
+lang: en
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(echo = FALSE, comment = "", fig.asp = .5)
+library(tidyverse)
+library(latex2exp)
+library(openintro)
+library(knitr)
+library(kableExtra)
+library(fontawesome)
+library(janitor)
+library(cowplot)
+
+library(palmerpenguins)
+data("penguins")
+
+gentoo <- penguins |> filter(species == "Gentoo") |> na.exclude()
+adelie <- penguins |> filter(species == "Adelie") |> na.exclude()
+chinstrap <- penguins |> filter(species == "Chinstrap") |> na.exclude()
+
+lsz <- 1.0
+tsz <- 4
+theme_ur <- theme(legend.justification = c(1,1), legend.position = c(1,1), legend.box.margin = margin(c(4, 4, 4, 4), unit = "pt"))
+theme_lr <- theme(legend.justification = c(1,0), legend.position = c(1,0), legend.box.margin = margin(c(4, 4, 4, 4), unit = "pt"))
+```
+
+# Announcements {.mySegue .center}
+:::{.hidden}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbf{E}}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\corr}{corr}
+\newcommand{\se}{\mathsf{se}}
+\DeclareMathOperator{\sd}{sd}
+:::
+
+## Attendance
+
+::: {layout="[[-1], [1], [-1]]"}
+![](images/seats.png){fig-align="center" fig-alt="Register your attendance using SEAtS"}
+:::
+
+## Reminders 
+
+- Discuss `r fa("r-project")` (specifically `lm`) at Thu workshop. 
+- Discuss worksheet 8 at Fri workshop.
+- Lab 6 due **Fri 2024-11-08** at **17:00**. 
+
+## Special Announcement `r fa("bullhorn")` `r fa("bullhorn")` `r fa("bullhorn")`
+
+![](images/advert.png){width=80% alt="EMS lecture advertisement."}
+
+## `r fa("compass")` Outline of today
+
+1. Linear models (Conditions, Least Squares)
+
+2. `lm` demo
+
+
+# Linear Models {.mySegue .center}
+
+## Correlation
+
+Correlation describes the strength of a **linear relationship**.
+
+```{r}
+#| warning: false
+#| message: false
+df6 <- read_csv("data/linear-model-correlation.csv")
+pa <- ggplot(df6, aes(x = xx, y = yy)) + geom_point(aes(color = "pts")) + 
+        ggtitle(TeX('(c) $r \\approx 0$, no relationship apparent')) + 
+        theme(axis.title.y = element_blank(), axis.ticks.y=element_blank(), 
+              axis.text.y=element_blank(), axis.title.x = element_blank(), 
+              axis.ticks.x=element_blank(), axis.text.x=element_blank(), 
+              legend.position = "none", plot.title = element_text(size = 12))
+pb <- ggplot(df6, aes(x = xx, y = -xx^2 + a)) + geom_point(aes(color = "pts")) + 
+        ggtitle(TeX('(d) $r \\approx 0$, nonlinear relationship')) + 
+        theme(axis.title.y = element_blank(), axis.ticks.y=element_blank(), 
+              axis.text.y=element_blank(), axis.title.x = element_blank(), 
+              axis.ticks.x=element_blank(), axis.text.x=element_blank(), 
+              legend.position = "none", plot.title = element_text(size = 12))
+pc <- ggplot(df6, aes(x = xx, y = xx + 2 + a)) + geom_point(aes(color = "pts")) + 
+        ggtitle(TeX('(a) $r \\approx +1$, linear relationship')) + 
+        theme(axis.title.y = element_blank(), axis.ticks.y=element_blank(), 
+              axis.text.y=element_blank(), axis.title.x = element_blank(), 
+              axis.ticks.x=element_blank(), axis.text.x=element_blank(), 
+              legend.position = "none", plot.title = element_text(size = 12))
+pd <- ggplot(df6, aes(x = xx, y = 8 - xx + b)) + geom_point(aes(color = "pts")) + 
+        ggtitle(TeX('(b) $r \\approx -1$, linear relationship')) + 
+        theme(axis.title.y = element_blank(), axis.ticks.y=element_blank(), 
+              axis.text.y=element_blank(), axis.title.x = element_blank(), 
+              axis.ticks.x=element_blank(), axis.text.x=element_blank(), 
+              legend.position = "none", plot.title = element_text(size = 12))
+plot_grid(pc, pd, pa, pb, ncol = 2, nrow = 2)
+```  
+
+:::{.notes}
+- Correlation $\rho = Cov(X,Y) / \sigma_X \sigma_Y \in (-1,1)$ models *linear* dependence.
+- $X,Y$ independent $\Rightarrow$ $\rho = 0$; $\rho = 0$ does not imply $X,Y$ independent.
+:::
+
+
+## Linear Model (what is it?) {.smaller}
+
+- Assumes relationship between two variables $X$ and $Y$ can be modeled by a straight line
+- Model for a perfect linear relationship: we would know the exact value of $Y$ just by knowing the exact value of $X$:
+$$Y = \beta_0 + \beta_1 X$$
+
+- (Statistical) Linear model: 
+$$Y = \beta_0 + \beta_1 X + \epsilon\,,$$
+
+where $\epsilon$ represent the errors (residuals) in the relationship.
+
+:::{.notes}
+- $X$ is explanatory or predictor; $Y$ is response
+- ESTIMATE $\beta_0$ intercept and $\beta_1$ slope from DATA
+- Point estimates $\widehat{\beta}_0$ and $\widehat{\beta}_1$
+:::
+
+
+## Palmer penguins (Gentoo)
+
+::::{.columns}
+::: {.column width="75%"}
+```{r}
+#| warning: false
+ggplot(gentoo, aes(x = flipper_length_mm, y = body_mass_g)) + geom_point(aes(color = species), alpha = 0.8, size=3) + 
+   xlab("Flipper length (mm)") + ylab("Body mass (g)")
+```
+:::
+
+::: {.column width="25%"}
+![](images/gentoo.jpeg){width=100% .right alt="Gentoo penguins."}
+:::
+::::
+
+:::{.notes}
+- Measurement data (119 obs) from the Palmer Long-Term Ecological Research (LTER) station in Antarctica
+- Gentoo penguins that have above average flipper length tend to also have above average body mass
+- Could be helpful to explain relationship with a straight line: predict body mass from flipper length
+:::
+
+## Fitting a line by eye
+
+```{r}
+#| warning: false
+ggplot(gentoo, aes(x = flipper_length_mm, y = body_mass_g)) + geom_point(aes(color = species), alpha = 0.8, size=3) + 
+   xlab("Flipper length (mm)") + ylab("Body mass (g)") + geom_abline(intercept = -7200, slope = 56, size=1, )
+```
+
+:::{.notes}
+- slope 56, intercept -7000
+- $\widehat{y} = -7200 + 56 x$; say length is 215: $215*56 - 7200 = 12040 - 7200 = 4840$
+:::
+
+
+# Ordinary Least squares (OLS) {.mySegue .center}
+
+## Residuals (every obs has a friend!)
+
+Data = Fit + Residual 
+
+One goal in regression is to **pick the linear model to minimize residuals**. 
+
+```{r}
+#| warning: false
+ggplot(gentoo, aes(x = flipper_length_mm, y = body_mass_g)) + geom_point(aes(color = species), alpha=0.8, size=3) + 
+   xlab("Flipper length (mm)") + ylab("Body mass (g)") + geom_abline(intercept = -7200, slope = 56, size=1)
+```
+
+:::{.notes}
+- Residuals are leftover variation in data after accounting for the model fit.
+- Points above line have positive residuals; points below line have negative residuals.
+- "Best fit"; draw residuals
+:::
+
+## Finding "best fit"
+
+We want a line that minimizes the residuals.
+
+- Choose the line that minimizes the sum of the squared residuals $$\epsilon_1^2 +  \epsilon_2^2 + \dots \epsilon_m^2$$
+- Commonly referred to as **least squares line**
+
+:::{.notes}
+- Residuals are leftover variation in data after accounting for the model fit.
+- Points above line have positive residuals; points below line have negative residuals.
+- "Best fit"; draw residuals
+:::
+
+
+## Fitting least squares parameters
+
+Least squares estimates for $\widehat{\beta}_1$ and $\widehat{\beta}_0$ are given by
+$$
+ \widehat{\beta}_1 = \frac{\sum_{i=1}^m (X_i - \overline{X})(Y_i - \overline{Y})}{\sum_{i=1}^m (X_i - \overline{X})^2} $$
+$$
+ \widehat{\beta}_0 = \overline{Y} - \widehat{\beta}_1 \overline{X}
+$$
+
+```{r}
+#| echo: true
+xbar <- mean(gentoo$flipper_length_mm)
+ybar <- mean(gentoo$body_mass_g)
+sxy <- cov(gentoo$flipper_length_mm, gentoo$body_mass_g)
+sxx <- var(gentoo$flipper_length_mm)
+
+b1 <- sxy/sxx
+b0 <- ybar - b1*xbar
+```
+
+:::{.notes}
+- Notation: $\frac{S_{xy}}{S_{xx}}$
+- $b1 = 54.1654$, $b2 = -6674.2042$
+:::
+
+## Least squares fit
+
+```{r}
+#| warning: false
+ggplot(gentoo, aes(x = flipper_length_mm, y = body_mass_g)) + geom_point(aes(color = species), alpha = 0.8, size=3) + 
+   xlab("Flipper length (mm)") + ylab("Body mass (g)") + geom_abline(intercept = -7200, slope = 56, linetype = 11, size = 1) + geom_abline(intercept = b0, slope = b1, size = 2, color = "blue")
+```
+
+:::{.notes}
+- Compare eye-fit with intercept -7200, slope 56 to best-fit intercept -6674.2042, slope 54.1654
+:::
+
+## What do these numbers mean? 
+
+- **SLOPE**: For each additional 10 mm flipper length, we would expect the penguin to weigh 541.7 g **more**.
+- **INTERCEPT**: -6674.20 g describes the average weight if a penguin had flipper length 0... 
+
+:::{.callout-warning}
+## Extrapolation can be treacherous!  
+
+Here there are no observations near zero.
+:::
+
+:::{.notes}
+- That is, $10*54.17 = 541.7$ (i.e. each additional cm of flipper length adds half a kilo)
+- If the slope were negative, it would be **less**
+- NO CAUSAL INTERPRETATION BETWEEN PREDICTOR AND RESPONSE!
+:::
+
+## But wait, there's more!
+
+We provided point estimates for the intercept and slope for the least squares line. 
+
+The lecture notes also contain the following goodies:
+
+-  Inferences (pt est, CI and H-test) for the variance of the random deviation for the least squares regression [$\widehat{\sigma}^2 = \mathsf{RSS}/(m-2)$]
+-  Inferences (CI and H-test) for $\beta_0$ and $\beta_1$
+-  $100(1-\alpha)\%$ prediction interval for model response (fit the model then give interval estimate for $Y$ when $x = x^*$)
+
+These follow the same procedures we learned earlier in the module.
+
+# Assumptions {.mySegue .center}
+
+## `r fa("l")` `r fa("i")` `r fa("n")` `r fa("e")` {.smaller}
+
+Four conditions for simple linear regression model: 
+
+- `r fa("l")`inearity: data should show *Linear* trend, i.e., the mean of the response, $\mathbf{E}(Y_i)$, at each value of the predictor, $x_i$, is a *Linear* function of the $x_i$.
+- `r fa("i")`ndependent residuals: The residuals, $\epsilon_i$, are independent.
+- `r fa("n")`ormal residuals: The residuals, $\epsilon_i$, at each value of the predictor, $x_i$, are (nearly) *Normally* distributed.
+- `r fa("e")`qual varianes: variability of points around least squares line is constant, i.e., the errors, $\epsilon_i$, at each value of the predictor, $x_i$, have *Equal* variances ($\sigma^2$).
+
+## Alternative (equivalent) descriptions of conditions... {.smaller}
+
+An equivalent way to think of the first (linearity) condition is that the mean of the error, $\mathbf{E}(\epsilon_i)$, at each value of the predictor, $x_i$, is **zero**. 
+
+An alternative way to describe all four assumptions is that the errors, $\epsilon_i$, are i.i.d. $\mathsf{N}(0, \sigma^2)$.
+
+## Conditions for linear regression (in pictures)
+
+For fitting a least squares line we focus on three requirements:
+
+![](images/conditions.png){width=100% alt="Conditions for linear regression."}
+
+:::{.notes}
+- Panel 1: nonlinearity - distinctive curvature
+- Panel 2: non-normal residuals - notice outlier toward left
+- Panel 3: lack of homoscedascticity (variance increases); should also look for patterns
+:::
+
+## Your turn!
+
+
+:::{.callout-tip}
+## Try it!
+
+What conditions are these linear model obviously violating?
+
+<https://www.menti.com> code: 8965 9392
+{{< qrcode https://www.menti.com/alwvr56w4qcp >}}
+:::
+
+
+# `lm` demo {.mySegue .center}
+
+
+# Summary
+
+Today we discussed linear models.
+
+- Overview
+- Conditions for linear regression
+- Correlation
+- Calculating OLS parameters
+
+That's a lot to take in!
+
+:::{.callout-tip}
+## Today's materials 
+
+Slides posted to <https://dundeemath.github.io/MA22004-seminar08>.
+:::
