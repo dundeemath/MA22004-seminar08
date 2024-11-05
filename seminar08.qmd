@@ -68,7 +68,7 @@ theme_lr <- theme(legend.justification = c(1,0), legend.position = c(1,0), legen
 
 ## Special Announcement `r fa("bullhorn")` `r fa("bullhorn")` `r fa("bullhorn")`
 
-![](images/advert.png){width=80% alt="EMS lecture advertisement."}
+![](images/advert.jpg){width=80% fig.alt="EMS lecture advertisement."}
 
 ## `r fa("compass")` Outline of today
 
